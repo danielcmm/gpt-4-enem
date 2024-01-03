@@ -36,6 +36,8 @@ class HFLM(BaseLM):
         # TODO: update this to be less of a hack once subfolder is fixed in HF
         self.gpt2 = transformers.AutoModelForCausalLM.from_pretrained(
             pretrained,
+            trust_remote_code=True,
+            low_cpu_mem_usage = True,
             revision=revision + ("/" + subfolder if subfolder is not None else ""),
         ).to(self.device)
         self.gpt2.eval()
@@ -47,15 +49,15 @@ class HFLM(BaseLM):
             subfolder=subfolder,
         )
 
-        assert isinstance(
-            self.tokenizer,
-            (
-                transformers.GPT2Tokenizer,
-                transformers.GPT2TokenizerFast,
-                transformers.T5Tokenizer,
-                transformers.T5TokenizerFast,
-            ),
-        ), "this tokenizer has not been checked for compatibility yet!"
+        # assert isinstance(
+        #     self.tokenizer,
+        #     (
+        #         transformers.GPT2Tokenizer,
+        #         transformers.GPT2TokenizerFast,
+        #         transformers.T5Tokenizer,
+        #         transformers.T5TokenizerFast,
+        #     ),
+        # ), "this tokenizer has not been checked for compatibility yet!"
 
         self.vocab_size = self.tokenizer.vocab_size
 

@@ -39,16 +39,34 @@ class ENEM_2022(ENEM):
     DATASET_PATH = 'data/enem'
     DATASET_NAME = '2022'
 
+    def json_to_jsonl(self, json_file_path, jsonl_file_path):
+        # Lê o arquivo JSON
+        with open(json_file_path, 'r', encoding='utf-8') as json_file:
+            data = json.load(json_file)
+
+        # Abre o arquivo JSONL para escrita
+        with open(jsonl_file_path, 'w', encoding='utf-8') as jsonl_file:
+            # Escreve cada objeto JSON como uma linha separada no arquivo JSONL
+            for entry in data:
+                json.dump(entry, jsonl_file)
+                jsonl_file.write('\n')
+
+
     def download(self, data_dir=None, cache_dir=None, download_mode=None):
 
         self.dataset = collections.defaultdict(list)
         
         fname = os.path.join(self.DATASET_PATH, self.DATASET_NAME + '.jsonl')
+
+        if not os.path.exists(fname):
+            self.json_to_jsonl(fname.replace('.jsonl', '.json'), fname)
+
+
         with open(fname, 'r', encoding='utf-8') as f:
             documents = [json.loads(line) for line in f]
 
         # remove annulled questions
-        documents = [d for d in documents if d['label'] in ['A', 'B', 'C', 'D', 'E']]
+        documents = [d for d in documents if d['label'].upper() in ['A', 'B', 'C', 'D', 'E']]
 
         self.dataset['test'] = list(map(self._process_doc, documents))
 
